@@ -1,0 +1,84 @@
+import trenes.*
+
+describe "test de trenes" {
+	//vagones de pasajeros
+	var vagonP1 = new VagonDePasajeros(largo = 5, anchoUtil = 2) //pesado 3200
+	var vagonP2 = new VagonDePasajeros(largo = 4, anchoUtil = 4) //pesado 3200
+	var vagonP3 = new VagonDePasajeros(largo = 2, anchoUtil = 2.5) //liviano 1280
+	var vagonP4 = new VagonDePasajeros(largo = 7, anchoUtil = 1.5) //pesado 4480
+	var vagonP5 = new VagonDePasajeros(largo = 3, anchoUtil = 3.5) //liviano 2400
+	 
+	//vagones de carga
+	var vagonC1 = new VagonDeCarga(cargaMaxima =1000) //liviano 1160
+	var vagonC2 = new VagonDeCarga(cargaMaxima =2000) //liviano 2160
+	var vagonC3 = new VagonDeCarga(cargaMaxima =3000) //pesado 3160
+	var vagonC4 = new VagonDeCarga(cargaMaxima =4000) //pesado 4160
+	var vagonC5 = new VagonDeCarga(cargaMaxima =5000) //pesado 5160
+	
+	//locomotoras
+	var locomotora1 = new Locomotora(peso= 1000, maximoArrastre = 5000, velocidadMaxima = 90)
+	var locomotora2 = new Locomotora(peso= 1500, maximoArrastre = 7500, velocidadMaxima = 80)
+	var locomotora3 = new Locomotora(peso= 1200, maximoArrastre = 8000, velocidadMaxima = 90)
+ 	var locomotora4 = new Locomotora(peso= 2000, maximoArrastre = 10000, velocidadMaxima = 70)
+    var locomotora5 = new Locomotora(peso= 1800, maximoArrastre = 12000, velocidadMaxima = 85)
+    
+    //trenes
+    var tren1 = new Tren (vagones = [vagonP1, vagonP4, vagonP5, vagonC1, vagonC2, vagonC4], locomotoras = [locomotora1, locomotora4, locomotora3]) //17560 //13000 de arrastre
+    var tren2 = new Tren (vagones = [vagonP5, vagonP2, vagonP3, vagonC3, vagonC4, vagonC2], locomotoras = [locomotora2, locomotora5, locomotora2]) //16360 //19500 de arrastre
+    var tren3 = new Tren (vagones = [vagonP1, vagonP4, vagonP3, vagonC5, vagonC3, vagonC1], locomotoras = [locomotora3, locomotora1, locomotora5]) //18400 //13000 de arrastre
+    var tren4 = new Tren (vagones = [vagonP1, vagonP3, vagonP2, vagonC2, vagonC4, vagonC5], locomotoras = [locomotora4, locomotora3, locomotora4]) //19160 //18000 de arrastre
+    var tren5 = new Tren (vagones = [vagonP1, vagonP4, vagonP5, vagonP4, vagonP4, vagonC1, vagonC4, vagonC3], locomotoras = [locomotora5, locomotora2, locomotora1]) //19560 //19500 de arrastre
+    
+    //deposito
+    var deposito = new Deposito(formaciones = [tren1, tren2, tren3, tren4, tren5,locomotora1, locomotora2, locomotora3, locomotora4, locomotora5])
+    
+    test "cuantos vagones livianos tiene una formacion" {
+    	assert.equals(tren1.cantidadDeVagonesLivianos(),3)
+    	assert.equals(tren2.cantidadDeVagonesLivianos(),3)
+    	assert.equals(tren3.cantidadDeVagonesLivianos(),2)
+    	assert.equals(tren4.cantidadDeVagonesLivianos(),2)
+    	assert.equals(tren5.cantidadDeVagonesLivianos(),2)
+    }
+    
+    test "velocidad maxima de una formacion" {
+    	assert.equals(tren1.velocidadMaxima(),70)
+    	assert.equals(tren2.velocidadMaxima(),80)
+    	assert.equals(tren3.velocidadMaxima(),85)
+    	assert.equals(tren4.velocidadMaxima(),70)
+    	assert.equals(tren5.velocidadMaxima(),80)
+    }
+    
+    test "locomotoras eficientes" {
+    	assert.that(tren1.locomotorasEficientes())
+    	assert.that(tren2.locomotorasEficientes())
+    	assert.that(tren3.locomotorasEficientes())
+    	assert.that(tren4.locomotorasEficientes())
+    	assert.that(tren5.locomotorasEficientes())
+    }
+    
+    test "el tren puede moverse" {
+    	assert.that(tren1.puedeMoverse())
+    	assert.that(tren2.puedeMoverse())
+    	assert.that(tren3.puedeMoverse())
+    	assert.that(tren4.puedeMoverse())
+    	assert.notThat(tren5.puedeMoverse())
+    }
+    
+    test "cuantos kilos faltan para que una formacion se pueda mover" {
+    	//uso solo el quinto tren que es el único que no puede hacerlo 
+    	assert.equals(tren5.kilosDeEmpujeFaltante(),7320)
+    }
+    
+    test "vagones mas pesados de cada formacion" {
+    	assert.equals(deposito.vagonesMasPesados(), #{vagonP4, vagonC4, vagonC5})
+    }
+    
+    test "necesidad de conductor experimentado" {
+    	assert.notThat(deposito.conductorExperimentado(tren1))
+    	assert.notThat(deposito.conductorExperimentado(tren2))
+    	assert.notThat(deposito.conductorExperimentado(tren3))
+    	assert.notThat(deposito.conductorExperimentado(tren4))
+    	assert.notThat(deposito.conductorExperimentado(tren5))
+    }
+    
+}
