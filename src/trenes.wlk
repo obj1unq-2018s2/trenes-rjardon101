@@ -1,18 +1,31 @@
-class VagonDePasajeros {
+class Vagon {
+	method pesoMaximo() = {}
+	
+	method esLiviano() = self.pesoMaximo() < 2500
+}
+
+class VagonDePasajeros inherits Vagon{
 	var largo = 0
 	var anchoUtil= 0
 	
 	method pasajerosQuePuedeTransportar() = if (anchoUtil < 2.5) largo * 8 
 	                                        else largo * 10
 		
-	method pesoMaximo()= self.pasajerosQuePuedeTransportar() * 80
+	override method pesoMaximo()= self.pasajerosQuePuedeTransportar() * 80
+	
+	method cantidadDeBanios(){
+		return self.pasajerosQuePuedeTransportar() / 50
+	}
 }
 
-class VagonDeCarga {
+class VagonDeCarga inherits Vagon {
 	var cargaMaxima = 0
 	
+	//metodos polimorficos
 	method pasajerosQuePuedeTransportar() = 0
-	method pesoMaximo() = cargaMaxima + 160
+	method cantidadDeBanios() = 0
+	
+	override method pesoMaximo() = cargaMaxima + 160
 	
 }
 
@@ -64,11 +77,13 @@ class Tren {
     
     //metodo abstracto
     method estaBienArmada() = {}
+    
 }
 
 class Deposito {
 	
 	var formaciones = []
+	var locomotoras = []
 	
 	//6
 	method vagonMasPesado(tren) = tren.vagones().max({vagon => vagon.pesoMaximo()})
@@ -83,16 +98,20 @@ class Deposito {
 
     //8
     
-    method buscarLocomotora(unTren) {
-    	return unTren.locomotoras()
-    }
+  method guardarFormacion(formacion){
+		formaciones.add(formacion)
+	}
+	
+	method hayLocomotoraUtil() = locomotoras.filter{locomotora => locomotora.sirveParaMoverse()}
+	
     
-    method agregarALocomotora(unTren) {
-    	if(! unTren.puedeMoverse()) {
-    		
-    	}
-    }
     
+	method agregarLocomotoraAFormacion(formacion){
+		if(not formacion.puedeMoverse() and not self.hayLocomotoraUtil().isEmpty()){
+			self.guardarFormacion(self.hayLocomotoraUtil().first())
+		}
+	}
+	
     
 }
 
@@ -100,23 +119,53 @@ class Deposito {
 
 class CortaDistancia inherits Tren {
 	
+	var property esCompleja = true
+	
 	override method estaBienArmada() {
-		return self.puedeMoverse()
-		//que quiere decir con que no tiene que ser compleja???
+		return self.puedeMoverse() and not self.esCompleja()
+
 	}
+	
+	override method velocidadMaxima()=60
 	
 }
 
 class LargaDistancia inherits Tren {
 	
+	var destino = "gran ciudad"
+	
 	method agregrarBanio() {
 		
-	}
+	}	
 	
 	override method estaBienArmada() {
 		return self.puedeMoverse()
 			}
+			
+		override method velocidadMaxima(){
+		var velocidadMaxima
+		if(destino == "gran ciodad"){
+			velocidadMaxima =200
+		} else {
+			velocidadMaxima = 150
+		}
+		return velocidadMaxima
+	}		
 }
+
+class FormacionDeAltaVelocidad inherits LargaDistancia{
+	
+	method todoslosVagonesLivianos(){
+		return vagones.all{vagon=> vagon.esLiviano()}
+	}
+	
+	override method estaBienArmada() {
+		return super() and self.todoslosVagonesLivianos() and self.velocidadMaxima() >250
+	}
+	
+
+}
+
 
 
 
